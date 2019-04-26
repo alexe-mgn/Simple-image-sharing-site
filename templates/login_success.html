@@ -1,0 +1,11 @@
+{% extends "loading.html" %}
+
+{% block head %}
+    <meta http-equiv="refresh" content="3;url={{ link|default('index') }}">
+{% endblock %}
+
+{% block body %}
+    <div align="middle" class="alert alert-success">
+        Вход выполнен успешно
+    </div>
+{% endblock %}

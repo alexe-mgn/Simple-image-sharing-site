@@ -1,0 +1,37 @@
+{% extends "loading.html" %}
+
+{% block body %}
+    <a class="btn btn-outline-dark" href="{{ request.headers.get('referer', 'index') }}"
+       style="border-radius: 10%">back</a>
+    <div align="middle">
+        <form method="post" novalidate>
+            <p>{{ form.hidden_tag() }}</p>
+            {% for i in form %}
+                {% if i.name not in ['csrf_token', 'submit'] %}
+                    {{ i.label }}<br>
+                    {{ i }}<br>
+                    {% if form.errors.get(i.name) %}
+                        <div class="alert alert-danger">
+                            {% for error in form.errors.get(i.name) %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            <div>
+                <button class="btn btn-primary"
+                        type="submit">
+                    Log In
+                </button>
+                {% if form.errors.get('account', None) %}
+                    <div class="alert alert-danger">
+                        {% for i in form.errors['account'] %}
+                            {{ i }}<br>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+{% endblock %}
