@@ -8,11 +8,15 @@
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/angular.min.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <script src="{{ url_for('static', filename='js/base.js') }}"></script>
     {% block head %}
     {% endblock %}
 </head>
+{% block open %}
 <body>
 {% block body %}
 {% endblock %}
 </body>
+{% endblock %}
 </html>

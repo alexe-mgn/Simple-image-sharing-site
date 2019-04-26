@@ -1,6 +1,8 @@
 {% extends "loading.html" %}
-{% block body %}
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+{% block open %}
+    <body style="background-image: url(image/background.jpg)">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <span class="navbar-brand">Меню</span>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -10,40 +12,38 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="index">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="index">Главная<span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Profile</a>
-                </li>
-                {% if session.get('user_status', 'user') == 'admin'  %}
+                {% if logged_in %}
                     <li class="nav-item">
-                        <a class="nav-link" href="control">Control panel</a>
+                        <a class="nav-link" href="profile">Профиль</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Сообщения</a>
                     </li>
                 {% endif %}
             </ul>
             <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search"
+                <input class="form-control mr-sm-2" type="search" placeholder="Поиск" aria-label="Search"
                        style="width: 25pc">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>
             </form>
-
-            {% if 'user_id' in session %}
+            {% if logged_in %}
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item active dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            {{ session.get('username', 'Гость') }}
+                            {{ user_name }}
                         </a>
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                            <a class="dropdown-item" href="index">Profile</a>
-                            <a class="dropdown-item" href="logout">Logout</a>
+                            <a class="dropdown-item" href="logout">Выход</a>
                         </div>
                     </li>
                 </ul>
             {% else %}
                 <div class="ml-auto">
-                    <a class="btn btn-outline-success" href="login">Log In</a>
-                    <a class="btn btn-outline-success" href="register">Sign Up</a>
+                    <a class="btn btn-outline-success" href="login">Войти</a>
+                    <a class="btn btn-outline-success" href="register">Зарегестрироваться</a>
                 </div>
             {% endif %}
 
@@ -53,4 +53,5 @@
         {% block content %}
         {% endblock %}
     </main>
+    </body>
 {% endblock %}

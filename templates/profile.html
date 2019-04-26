@@ -1,4 +1,45 @@
 {% extends "base.html" %}
 
+{% set own_profile = (user_id == user.get('id', None)) %} }}
+
 {% block content %}
+    <div class="row">
+        <div class="col-lg-3 m-2 text-center">
+            <img src="{{ 'image/' + user.get('avatar_id', 0)|string }}"
+                 class="avatar-lg">
+            {% if own_profile %}
+                <button class="btn-md btn-outline-primary my-2"
+                        style="background-color: transparent; border-radius: 4px"
+                        data-toggle="modal" data-target="#avatarUploadModal"
+                >Загрузить изображение
+                </button>
+            {% endif %}
+        </div>
+        <div class="col-lg-7 m-2">
+            <h1 class="platform py-1">{{ user.get('name', '<unknown>') }}</h1>
+            <div class="platform py-1">Text</div>
+        </div>
+    </div>
+    {% if own_profile %}
+        <div class="modal fade" id="avatarUploadModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Сменить аватар</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="upload_avatar" enctype="multipart/form-data" novalidate>
+                            <input type="file" class="form-control-file" name="avatar_image" onchange="submit()">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-dark" data-dismiss="modal">Закрыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}

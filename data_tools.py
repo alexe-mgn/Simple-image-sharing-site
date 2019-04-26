@@ -1,110 +1,254 @@
 import sqlite3 as sql
-import random
 import os
 
 
 class Database:
-    con: sql.Connection
+    connection: sql.Connection
 
     def __init__(self, path):
-        self.con = None
+        self.connection = None
         dr = os.path.split(path)[0]
         if dr and not os.path.isdir(dr):
             os.mkdir(dr)
         self.connect(path)
-        self.con.row_factory = sql.Row
+        self.connection.row_factory = sql.Row
 
     def connect(self, path):
-        self.con = sql.connect(path, check_same_thread=False)
+        self.connection = sql.connect(path, check_same_thread=False)
 
     def disconnect(self):
-        if self.con is not None:
-            self.con.close()
-            self.con = None
+        if self.connection is not None:
+            self.connection.close()
+            self.connection = None
 
     def get_connection(self):
-        return self.con
+        return self.connection
 
-    connection = property(get_connection)
+    con = property(get_connection)
 
     def __del__(self):
         self.disconnect()
 
 
-class UsersModel:
-    con: sql.Connection
+class ResourceModel:
 
-    def __init__(self, db):
+    def __init__(self, db, table):
         self.connect(db)
+        self.table = table
         self.create_table()
 
     def connect(self, db):
         """
         :type db: Database
         """
-        self.con = db.get_connection()
+        self.connection = db.get_connection()
 
     def create_table(self):
-        self.con.execute('''
-        CREATE TABLE if NOT EXISTS "users" (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name VARCHAR(50),
-        password VARCHAR(128),
-        time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
+        self.connection.execute(
+            '''
+            CREATE TABLE if NOT EXISTS {} (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
+            )
+            '''.format(self.table))
+        self.connection.commit()
+
+    def columns(self):
+        return 'id', 'time'
+
+    def delete(self, id):
+        self.connection.execute('DELETE FROM {} WHERE id=?'.format(self.table), (id,))
+        self.connection.commit()
+
+    def find(self, **kwargs):
+        items = kwargs.items()
+        c = self.connection.cursor()
+        q = 'SELECT * FROM {} WHERE ({})'.format(
+            self.table,
+            ' AND '.join('{}=?'.format(e[0]) for e in items)
         )
-        ''')
-        self.con.commit()
-
-    def del_user(self, id):
-        self.con.execute('DELETE FROM users WHERE id=?', (str(id),))
-        self.con.commit()
-
-    def user_exists(self, id):
-        c = self.con.cursor()
-        c.execute('''
-        SELECT * FROM users WHERE id=?
-        ''', (id,))
-        r = bool(c.fetchall())
-        c.close()
-        return r
-
-    def find_user(self, **kwargs):
-        c = self.con.cursor()
-        q = 'SELECT * FROM users WHERE ({})'.format(
-            ' AND '.join('{}="{}"'.format(k, str(v)) for k, v in kwargs.items()))
-        c.execute(q)
+        c.execute(q, (*[e[1] for e in items],))
         r = c.fetchall()
         c.close()
         return r
 
-    def get_user(self, id):
-        c = self.con.cursor()
-        c.execute('SELECT * FROM users WHERE id=?', (str(id),))
+    def get(self, id):
+        c = self.connection.cursor()
+        c.execute('SELECT * FROM {} WHERE id=?'.format(self.table), (id,))
         r = c.fetchone()
         c.close()
         return r
 
-    def edit_user(self, id, **kwargs):
+    def edit(self, id, **kwargs):
         if len(kwargs) < 1:
             return
-        keys = kwargs.keys()
-        self.con.execute('''
-        UPDATE users SET {} WHERE id=?
-        '''.format(', '.join(k + '=?' for k in keys)), (*[kwargs[k] for k in keys], id))
+        items = kwargs.items()
+        self.connection.execute(
+            '''
+            UPDATE {} SET {} WHERE id=?
+            '''.format(
+                self.table,
+                ', '.join('{}=?'.format(e[0]) for e in items)
+            ),
+            (self.table, *[e[1] for e in items], id))
 
-    def add_user(self, name, password):
-        self.con.execute('INSERT INTO users (name, password) VALUES (?,?)', (name, password))
-        self.con.commit()
+    def add(self, *args, **kwargs):
+        if args:
+            self.connection.execute(
+                'INSERT INTO {} VALUES ({})'.format(
+                    self.table,
+                    ', '.join('?' for _ in range(len(args) + 1))
+                ),
+                (self.max_id() + 1, *args)
+            )
+        else:
+            items = kwargs.items()
+            self.connection.execute(
+                'INSERT INTO {} ({}) VALUES ({})'.format(
+                    self.table,
+                    ', '.join(e[0] for e in items),
+                    ','.join('?' for _ in range(len(items)))
+                ),
+                (*[e[1] for e in items],)
+            )
+        self.connection.commit()
 
     def get_all(self):
-        c = self.con.cursor()
-        c.execute('SELECT * FROM users')
+        c = self.connection.cursor()
+        c.execute('SELECT * FROM {}'.format(self.table))
         r = c.fetchall()
         c.close()
         return r
 
+    def max_id(self):
+        c = self.connection.cursor()
+        c.execute('SELECT max(id) FROM {}'.format(self.table))
+        r = c.fetchone()
+        c.close()
+        return r
+
+    def exists(self, id):
+        c = self.connection.cursor()
+        c.execute('SELECT * FROM {} WHERE id=?'.format(self.table), (id,))
+        r = bool(c.fetchone())
+        c.close()
+        return r
+
     def __getitem__(self, id):
-        return self.get_user(id)
+        return self.get(id)
 
     def __delitem__(self, id):
-        self.del_user(id)
+        self.delete(id)
+
+
+class UsersModel(ResourceModel):
+
+    def __init__(self, db):
+        super().__init__(db, 'users')
+
+    def create_table(self):
+        self.connection.execute(
+            '''
+            CREATE TABLE if NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            login VARCHAR(50),
+            password VARCHAR(128),
+            name VARCHAR(50) DEFAULT NULL,
+            avatar_id INTEGER DEFAULT 0,
+            time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
+            )
+            ''')
+        self.connection.execute(
+            '''
+            CREATE TRIGGER IF NOT EXISTS user_default_name AFTER INSERT ON users
+            WHEN new.name ISNULL
+            BEGIN
+                UPDATE users
+                SET name = new.login
+                WHERE id = new.id;
+            END;
+            ''')
+        self.connection.commit()
+
+    def login_exists(self, login):
+        c = self.connection.cursor()
+        c.execute('SELECT * FROM users WHERE login=?', (login,))
+        r = bool(c.fetchone())
+        c.close()
+        return r
+
+
+class ImagesModel(ResourceModel):
+
+    def __init__(self, db):
+        super().__init__(db, 'images')
+
+    def create_table(self):
+        self.connection.execute(
+            '''
+            CREATE TABLE if NOT EXISTS images (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filename VARCHAR(512),
+            time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
+            )
+            ''')
+
+    def upload_secure(self, data, name):
+        print(data)
+
+
+class PublicationsModel(ResourceModel):
+
+    def __init__(self, db):
+        super().__init__(db, 'posts')
+
+    def create_table(self):
+        self.connection.execute(
+            '''
+            CREATE TABLE if NOT EXISTS posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            image_id INTEGER,
+            text VARCHAR(2048),
+            time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
+            )
+            ''')
+        self.connection.commit()
+
+
+class CommentsModel(ResourceModel):
+
+    def __init__(self, db):
+        super().__init__(db, 'comments')
+
+    def create_table(self):
+        self.connection.execute(
+            '''
+            CREATE TABLE if NOT EXISTS comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_id INTEGER,
+            user_id INTEGER,
+            text VARCHAR(2048),
+            time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
+            )
+            ''')
+        self.connection.commit()
+
+
+class LikesModel(ResourceModel):
+
+    def __init__(self, db):
+        super().__init__(db, 'likes')
+
+    def create_table(self):
+        self.connection.execute(
+            '''
+            CREATE TABLE if NOT EXISTS likes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_id INTEGER,
+            user_id INTEGER,
+            value INTEGER CHECK (1 <= value AND value <= 5),
+            time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
+            )
+            ''')
+        self.connection.commit()

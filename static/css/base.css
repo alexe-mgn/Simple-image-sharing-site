@@ -1,0 +1,12 @@
+.avatar-lg {
+    border-radius: 50%;
+    border: black 2px;
+    width: 15rem;
+    height: 15rem;
+}
+
+.platform {
+    border-radius: 8px;
+    background-color: white;
+    padding: .5rem
+}

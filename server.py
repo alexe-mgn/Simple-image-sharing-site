@@ -1,50 +1,29 @@
-from functools import wraps
+from processing import *
 
-from flask import Flask, url_for, redirect, request, render_template, session, abort
+from flask import Flask, redirect, request, render_template, Markup, session, abort, jsonify
 
-from data_tools import *
 from forms import RegisterForm, LoginForm
+from API import api_app
 
-database = Database('data.db')
-um = UsersModel(database)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = r'=CqWM9G&BpA&MuKTR5Qv5=8qV^2xExC9%yM7@=fA+V5nAstAf3tAR$#&+v^a2hvY'
+app.register_blueprint(api_app)
 
 
-def set_session(uid):
-    session['uid'] = uid
-    u = um[uid]
-    session['name'] = u['name']
+@app.context_processor
+def context_processor():
+    return {
+        'print': lambda e: Markup('<h1>{}</h1>'.format(str(e))),
+        'logged_in': logged_in(),
+        'user_id': session.get('uid', None),
+        'user_name': session.get('name', None),
+        'user_login': session.get('login', None)
+    }
 
 
-def del_session():
-    session.pop('uid')
-    session.pop('name')
-
-
-def logged_in():
-    return 'uid' in session
-
-
-def login_required(f):
-    @wraps(f)
-    def login_required_wrapper(*args, **kwargs):
-        if not logged_in():
-            if request.headers.get('referer', 'index').endswith('login'):
-                return redirect('index')
-            else:
-                return redirect('login')
-        else:
-            return f(*args, **kwargs)
-
-    return login_required_wrapper
-
-
-def get_redirect_link():
-    if request.headers.get('referer', 'index') == request.url:
-        return 'index'
-    else:
-        return request.headers.get('referer', 'index')
+@app.errorhandler(404)
+def error_404(*args):
+    return render_template('not_found.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -52,7 +31,7 @@ def login_form():
     form = LoginForm()
     if 'uid' not in session:
         if form.validate_on_submit():
-            users = um.find_user(name=form.login.data, password=form.password.data)
+            users = um.find(login=form.login.data, password=form.password.data)
             if users:
                 user = users[0]
                 set_session(user['id'])
@@ -72,9 +51,9 @@ def register_form():
     if not logged_in():
         if form.validate_on_submit():
             name, pas = form.login.data, form.password.data
-            if not um.user_exists(name):
-                um.add_user(name, pas)
-                new_user = um.find_user(name=name, password=pas)[0]
+            if not um.login_exists(name):
+                um.add(login=name, password=pas)
+                new_user = um.find(login=name, password=pas)[0]
                 set_session(new_user['id'])
                 return render_template('login_success.html',
                                        title='Registration successful',
@@ -86,8 +65,8 @@ def register_form():
         return redirect(request.headers.get('referer', 'index'))
 
 
-@app.route('/logout')
 @login_required
+@app.route('/logout')
 def logout_page():
     del_session()
     return render_template('logout.html', link=get_redirect_link(), title='Выход')
@@ -102,21 +81,26 @@ def index():
         return render_template('index.html')
 
 
+@login_required
 @app.route('/news')
 def news():
-    if not logged_in():
-        return redirect('index')
-    else:
-        return render_template('news.html')
+    return render_template('news.html')
 
 
+@login_required
 @app.route('/profile')
-def profile():
-    if not logged_in():
-        return redirect('/login')
+def own_profile():
+    user = um.get(session['uid'])
+    return render_template('profile.html', user=dict(user), title='Профиль')
+
+
+@app.route('/profile/<int:uid>')
+def profile(uid):
+    user = um.get(uid)
+    if user:
+        return render_template('profile.html', user=dict(user), title=user['name'])
     else:
-        user = um.get_user(session['uid'])
-        return render_template('profile.html', profile=dict(user), title='Домашняя страница')
+        abort(404)
 
 
 if __name__ == '__main__':
