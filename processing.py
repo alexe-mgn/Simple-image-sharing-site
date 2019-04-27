@@ -1,5 +1,6 @@
 from data_tools import *
 from flask import request, session, redirect
+from flask import current_app as app
 from functools import wraps
 
 DATABASE = 'data.db'
@@ -21,13 +22,23 @@ def set_session(uid):
 
 
 def del_session():
-    session.pop('uid')
-    session.pop('login')
-    session.pop('name')
+    session.pop('uid', None)
+    session.pop('login', None)
+    session.pop('name', None)
 
 
 def logged_in():
     return 'uid' in session
+
+
+def get_session_user():
+    uid = session.get('uid', None)
+    if uid is not None:
+        user = dict(um.get(uid))
+    else:
+        user = {}
+    print(user)
+    return user
 
 
 def get_redirect_link():

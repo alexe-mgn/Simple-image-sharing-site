@@ -90,7 +90,8 @@ class ResourceModel:
                 self.table,
                 ', '.join('{}=?'.format(e[0]) for e in items)
             ),
-            (self.table, *[e[1] for e in items], id))
+            (*[e[1] for e in items], id))
+        self.connection.commit()
 
     def add(self, *args, **kwargs):
         if args:
@@ -123,6 +124,13 @@ class ResourceModel:
     def max_id(self):
         c = self.connection.cursor()
         c.execute('SELECT max(id) FROM {}'.format(self.table))
+        r = c.fetchone()
+        c.close()
+        return r
+
+    def last_row(self):
+        c = self.connection.cursor()
+        c.execute('SELECT * FROM {0} WHERE time = (SELECT max(time) FROM {0})'.format(self.table))
         r = c.fetchone()
         c.close()
         return r
@@ -192,9 +200,19 @@ class ImagesModel(ResourceModel):
             time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
             )
             ''')
+        self.connection.commit()
 
-    def upload_secure(self, data, name):
-        print(data)
+    def upload_secure(self, bytes, name):
+        bn, ext = os.path.splitext(name)
+        fnp = os.path.join('static\\img', bn)
+        n = 0
+        while os.path.isfile(fnp + str(n) + ext):
+            n += 1
+        fp = fnp + str(n) + ext
+        with open(fp, mode='wb') as out:
+            out.write(bytes)
+        self.add(filename=bn + str(n) + ext)
+        return self.last_row()['id']
 
 
 class PublicationsModel(ResourceModel):

@@ -12,12 +12,14 @@ app.register_blueprint(api_app)
 
 @app.context_processor
 def context_processor():
+    user = get_session_user()
     return {
         'print': lambda e: Markup('<h1>{}</h1>'.format(str(e))),
-        'logged_in': logged_in(),
-        'user_id': session.get('uid', None),
-        'user_name': session.get('name', None),
-        'user_login': session.get('login', None)
+        'logged_in': bool(user),
+        'user_id': user.get('id', None),
+        'user_name': user.get('name', None),
+        'user_login': user.get('login', None),
+        'user_avatar_src': '/image/' + str(user.get('avatar_id', None))
     }
 
 
@@ -65,8 +67,8 @@ def register_form():
         return redirect(request.headers.get('referer', 'index'))
 
 
-@login_required
 @app.route('/logout')
+@login_required
 def logout_page():
     del_session()
     return render_template('logout.html', link=get_redirect_link(), title='Выход')
@@ -81,16 +83,16 @@ def index():
         return render_template('index.html')
 
 
-@login_required
 @app.route('/news')
+@login_required
 def news():
     return render_template('news.html')
 
 
-@login_required
 @app.route('/profile')
+@login_required
 def own_profile():
-    user = um.get(session['uid'])
+    user = get_session_user()
     return render_template('profile.html', user=dict(user), title='Профиль')
 
 

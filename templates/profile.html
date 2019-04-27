@@ -2,12 +2,32 @@
 
 {% set own_profile = (user_id == user.get('id', None)) %} }}
 
+{% block head %}
+<script type="text/javascript">
+function upload_avatar(inp) {
+    if (inp.files.length > 0)
+        var form_data = new FormData();
+        form_data.append('avatar_image', inp.files[0]);
+        console.log(form_data)
+        $.ajax("/upload_avatar",
+        {method: "POST", processData: false, contentType: false, data: form_data})
+          .done(function(data) {
+            console.log(data);
+          })
+          .fail(function() {
+            alert( "error" );
+          });
+};
+</script>
+{% endblock %}
+
 {% block content %}
     <div class="row">
         <div class="col-lg-3 m-2 text-center">
-            <img src="{{ 'image/' + user.get('avatar_id', 0)|string }}"
+            <img src="{{ '/image/' + user.get('avatar_id', 0)|string }}"
                  class="avatar-lg">
             {% if own_profile %}
+                <br>
                 <button class="btn-md btn-outline-primary my-2"
                         style="background-color: transparent; border-radius: 4px"
                         data-toggle="modal" data-target="#avatarUploadModal"
@@ -16,7 +36,7 @@
             {% endif %}
         </div>
         <div class="col-lg-7 m-2">
-            <h1 class="platform py-1">{{ user.get('name', '<unknown>') }}</h1>
+            <h1 class="platform py-1">{{ user.get('name', "<unknown>") }}</h1>
             <div class="platform py-1">Text</div>
         </div>
     </div>
@@ -31,9 +51,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form method="post" action="upload_avatar" enctype="multipart/form-data" novalidate>
-                            <input type="file" class="form-control-file" name="avatar_image" onchange="submit()">
-                        </form>
+                        <input type="file" class="form-control-file" onchange="upload_avatar(this)">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-dark" data-dismiss="modal">Закрыть</button>
