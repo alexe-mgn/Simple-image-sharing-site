@@ -29,13 +29,21 @@ def image(ref='0'):
 
 @api_app.route('/upload_avatar', methods=['POST'])
 def upload_avatar():
-    a = request.files
     data = request.files.get('avatar_image', None)
+    resp = {'success': False, 'id': None, 'error': ''}
     if data:
         cuid = session.get('uid', None)
         if cuid is not None:
             img_id = im.upload_secure(data.stream.read(), secure_filename(data.filename))
             if img_id is not None:
+                im.delete(um[cuid]['avatar_id'])
                 um.edit(cuid, avatar_id=img_id)
-                return jsonify({'success': True})
-    return jsonify({'success': False})
+                resp['success'] = True
+                resp['id'] = img_id
+            else:
+                resp['error'] = 'Невозможно сохранить файл'
+        else:
+            resp['error'] = 'Доступ ограничен'
+    else:
+        resp['error'] = 'Нет входных данных'
+    return jsonify(resp)

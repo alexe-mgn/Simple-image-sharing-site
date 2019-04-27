@@ -214,6 +214,14 @@ class ImagesModel(ResourceModel):
         self.add(filename=bn + str(n) + ext)
         return self.last_row()['id']
 
+    def delete(self, id):
+        img = self.get(id)
+        if img:
+            fp = os.path.join('static\\img', img['filename'])
+            if os.path.isfile(fp):
+                os.remove(fp)
+        super().delete(id)
+
 
 class PublicationsModel(ResourceModel):
 

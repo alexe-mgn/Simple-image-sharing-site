@@ -3,22 +3,32 @@
 {% set own_profile = (user_id == user.get('id', None)) %} }}
 
 {% block head %}
-<script type="text/javascript">
-function upload_avatar(inp) {
-    if (inp.files.length > 0)
-        var form_data = new FormData();
-        form_data.append('avatar_image', inp.files[0]);
-        console.log(form_data)
-        $.ajax("/upload_avatar",
-        {method: "POST", processData: false, contentType: false, data: form_data})
-          .done(function(data) {
-            console.log(data);
-          })
-          .fail(function() {
-            alert( "error" );
-          });
-};
-</script>
+    <script type="text/javascript">
+        $(function () {
+            $('#avatar_input').on('change', function () {
+                if (this.files.length > 0) {
+                    let dom = this;
+                    var form_data = new FormData();
+                    form_data.append('avatar_image', dom.files[0]);
+                    let badge = $($(dom).attr('error-badge'));
+                    $.ajax("/upload_avatar",
+                        {method: "POST", processData: false, contentType: false, data: form_data})
+                        .done(function (data) {
+                            if (data.success === true) {
+                                location.reload()
+                            } else {
+                                badge.attr('data-original-title', data.error);
+                                badge.show()
+                            }
+                        })
+                        .fail(function (req, msg) {
+                            badge.attr('data-original-title', msg);
+                            badge.show()
+                        });
+                }
+            })
+        })
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -35,11 +45,15 @@ function upload_avatar(inp) {
                 </button>
             {% endif %}
         </div>
+
         <div class="col-lg-7 m-2">
-            <h1 class="platform py-1">{{ user.get('name', "<unknown>") }}</h1>
+            <h1 class="platform py-1">
+                {{ user.get('name', "<unknown>") }}
+            </h1>
             <div class="platform py-1">Text</div>
         </div>
     </div>
+
     {% if own_profile %}
         <div class="modal fade" id="avatarUploadModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
@@ -51,7 +65,9 @@ function upload_avatar(inp) {
                         </button>
                     </div>
                     <div class="modal-body">
-                        <input type="file" class="form-control-file" onchange="upload_avatar(this)">
+                        <input type="file" class="form-control-file" id="avatar_input"
+                               error-badge="#err">
+                        <div class="error-badge" id="err"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-dark" data-dismiss="modal">Закрыть</button>
