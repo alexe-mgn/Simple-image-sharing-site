@@ -47,3 +47,33 @@ def upload_avatar():
     else:
         resp['error'] = 'Нет входных данных'
     return jsonify(resp)
+
+
+@api_app.route('/update_name', methods=['POST'])
+def update_name():
+    data = request.get_data(as_text=True)
+    resp = {'success': False, 'error': '', 'text': ''}
+    if data:
+        cuid = session.get('uid', None)
+        if cuid is not None:
+            um.edit(cuid, name=data)
+            resp['success'] = True
+            resp['text'] = data
+        else:
+            resp['error'] = 'Доступ ограничен'
+    return jsonify(resp)
+
+
+@api_app.route('/update_info', methods=['POST'])
+def update_info():
+    data = request.get_data(as_text=True)
+    resp = {'success': False, 'error': '', 'text': ''}
+    if data:
+        cuid = session.get('uid', None)
+        if cuid is not None:
+            um.edit(cuid, info=data)
+            resp['success'] = True
+            resp['text'] = data
+        else:
+            resp['error'] = 'Доступ ограничен'
+    return jsonify(resp)

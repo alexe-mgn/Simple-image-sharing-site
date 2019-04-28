@@ -1,0 +1,21 @@
+﻿{% extends "loading.html" %}
+
+{% block open %}
+    <div>
+        <div class="row">
+
+        </div>
+        <img src="/image/{{ post.get('image_id', 0) }}">
+        <div class="row">
+            <div class="col-sm-2">
+                <div style="width: 3rem; height: 2rem" class="d-flex justify-content-center align-content-center">
+                    <div class="heart" style="width: 1.2rem; height: 1.2rem"></div>
+                </div>
+                <h6>Likes: <span>1234</span></h6>
+            </div>
+            <div class="col-sm-2">
+                <h6>Комментариев: <span>1234</span></h6>
+            </div>
+        </div>
+    </div>
+{% endblock %}

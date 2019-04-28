@@ -3,39 +3,14 @@
 {% set own_profile = (user_id == user.get('id', None)) %} }}
 
 {% block head %}
-    <script type="text/javascript">
-        $(function () {
-            $('#avatar_input').on('change', function () {
-                if (this.files.length > 0) {
-                    let dom = this;
-                    var form_data = new FormData();
-                    form_data.append('avatar_image', dom.files[0]);
-                    let badge = $($(dom).attr('error-badge'));
-                    $.ajax("/upload_avatar",
-                        {method: "POST", processData: false, contentType: false, data: form_data})
-                        .done(function (data) {
-                            if (data.success === true) {
-                                location.reload()
-                            } else {
-                                badge.attr('data-original-title', data.error);
-                                badge.show()
-                            }
-                        })
-                        .fail(function (req, msg) {
-                            badge.attr('data-original-title', msg);
-                            badge.show()
-                        });
-                }
-            })
-        })
-    </script>
+    <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 {% endblock %}
 
 {% block content %}
     <div class="row">
         <div class="col-lg-3 m-2 text-center">
             <img src="{{ '/image/' + user.get('avatar_id', 0)|string }}"
-                 class="avatar-lg">
+                 class="avatar-lg" alt="..." id="avatar">
             {% if own_profile %}
                 <br>
                 <button class="btn-md btn-outline-primary my-2"
@@ -47,10 +22,31 @@
         </div>
 
         <div class="col-lg-7 m-2">
-            <h1 class="platform py-1">
-                {{ user.get('name', "<unknown>") }}
-            </h1>
-            <div class="platform py-1">Text</div>
+            <div class="platform py-1 my-2">
+                <div class="d-flex flex-nowrap show-child-icons">
+                    <h1 class="" text-update="/update_name"
+                        add-text-update-function id="name_label" status-badge="#name_sb"
+                    >{{ user.get('name', "<unknown>") }}</h1>
+                    {% if own_profile %}
+                        <i class="far fa-edit mb-auto m-1 parent-hover"
+                           onclick="text_update_input('#name_label')"></i>
+                        <div class="status-badge mb-auto ml-auto" id="name_sb"></div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="platform py-1 my-2" style="max-height: 15rem">
+                <div class="d-flex flex-nowrap show-child-icons" style="max-height: inherit">
+                <pre text-update="/update_info"
+                     add-text-update-function id="optional_info_label"
+                     status-badge="#oil_badge" style="font-size: 100%"
+                >{{ user.get('info', 'Нет информации') }}</pre>
+                    {% if own_profile %}
+                        <i class="far fa-edit mb-auto m-1 parent-hover"
+                           onclick="text_update_input('#optional_info_label')"></i>
+                        <div class="status-badge mb-auto ml-auto" id="oil_badge"></div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 
@@ -66,8 +62,8 @@
                     </div>
                     <div class="modal-body">
                         <input type="file" class="form-control-file" id="avatar_input"
-                               error-badge="#err">
-                        <div class="error-badge" id="err"></div>
+                               status-badge="#err" style="width: auto">
+                        <div class="status-badge" id="err"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-dark" data-dismiss="modal">Закрыть</button>

@@ -1,5 +1,5 @@
 from data_tools import *
-from flask import request, session, redirect
+from flask import request, session, redirect, abort
 from flask import current_app as app
 from functools import wraps
 
@@ -34,28 +34,25 @@ def logged_in():
 def get_session_user():
     uid = session.get('uid', None)
     if uid is not None:
-        user = dict(um.get(uid))
-    else:
-        user = {}
-    print(user)
-    return user
-
-
-def get_redirect_link():
-    if request.headers.get('referer', 'index') == request.url:
-        return 'index'
-    else:
-        return request.headers.get('referer', 'index')
+        user = um.get(uid)
+        if user:
+            return dict(user)
+    return {}
 
 
 def login_required(f):
     @wraps(f)
     def login_required_wrapper(*args, **kwargs):
         if not logged_in():
-            if request.headers.get('referer', 'index').endswith('login'):
+            ref = request.headers.get('referer', 'index')
+            if ref.endswith('login') or ref.endswith('register') or ref.endswith('logout'):
                 return redirect('index')
             else:
+                session['back'] = 'index'
+                session['next'] = request.url
                 return redirect('login')
-        else:
+        elif um.exists(session.get('uid', None)):
             return f(*args, **kwargs)
+        else:
+            abort(410)
     return login_required_wrapper

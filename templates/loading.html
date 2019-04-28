@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <title>{{ title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <script src="{{ url_for('static', filename='js/jquery-3.4.0.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/angular.min.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='lib/js/jquery-3.4.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/js/angular.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='lib/fa/css/all.css') }}">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <script src="{{ url_for('static', filename='js/base.js') }}"></script>
+
     {% block head %}
     {% endblock %}
 </head>

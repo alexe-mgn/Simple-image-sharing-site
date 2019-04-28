@@ -15,6 +15,8 @@ def context_processor():
     user = get_session_user()
     return {
         'print': lambda e: Markup('<h1>{}</h1>'.format(str(e))),
+        'back_link': session.get('back', 'index'),
+        'next_link': session.get('next', 'index'),
         'logged_in': bool(user),
         'user_id': user.get('id', None),
         'user_name': user.get('name', None),
@@ -25,13 +27,18 @@ def context_processor():
 
 @app.errorhandler(404)
 def error_404(*args):
-    return render_template('not_found.html')
+    return render_template('not_found.html', code=404)
+
+
+@app.errorhandler(410)
+def error_410(*args):
+    return render_template('user_doesnt_exist.html', code=404)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_form():
     form = LoginForm()
-    if 'uid' not in session:
+    if not logged_in():
         if form.validate_on_submit():
             users = um.find(login=form.login.data, password=form.password.data)
             if users:
@@ -39,12 +46,10 @@ def login_form():
                 set_session(user['id'])
             else:
                 form.errors['account'] = ['Неверные данные для входа']
-    if 'uid' not in session:
+    if not logged_in():
         return render_template('login.html', title='Вход', form=form)
     else:
-        return render_template('login_success.html',
-                               title='Login success',
-                               link=get_redirect_link())
+        return redirect(session.get('next', 'index'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -58,20 +63,18 @@ def register_form():
                 new_user = um.find(login=name, password=pas)[0]
                 set_session(new_user['id'])
                 return render_template('login_success.html',
-                                       title='Registration successful',
-                                       link=get_redirect_link())
+                                       title='Registration successful')
             else:
                 form.login.errors.insert(0, 'Имя уже занято')
         return render_template('register.html', title='Регистрация', form=form)
     else:
-        return redirect(request.headers.get('referer', 'index'))
+        return redirect(session.get('next', 'index'))
 
 
 @app.route('/logout')
-@login_required
 def logout_page():
     del_session()
-    return render_template('logout.html', link=get_redirect_link(), title='Выход')
+    return render_template('logout.html', title='Выход')
 
 
 @app.route('/')
@@ -103,6 +106,21 @@ def profile(uid):
         return render_template('profile.html', user=dict(user), title=user['name'])
     else:
         abort(404)
+
+
+@app.route('/post/<int:pid>')
+def post_page(pid):
+    post = pm.get(pid)
+    if post or True:
+        return render_template('post.html', post=dict(post if post else {}))
+    else:
+        abort(404)
+
+
+@app.route('/create_post')
+@login_required
+def create_post():
+    return render_template('create_post.html')
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 {% extends "loading.html" %}
 
 {% block open %}
-    <body style="background-image: url(/image/background.jpg)">
+    <body class="background">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <span class="navbar-brand">Меню</span>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -21,17 +21,25 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Сообщения</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link py-1" href="create_post">
+                            <i class="far fa-images fa-2x" title="Добавить публикацию"
+                               data-toggle="tooltip" data-placement="bottom"></i>
+                        </a>
+                    </li>
                 {% endif %}
             </ul>
+
             <form class="form-inline my-2 my-lg-0">
                 <input class="form-control mr-sm-2" type="search" placeholder="Поиск" aria-label="Search"
                        style="width: 25pc">
                 <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Поиск</button>
             </form>
+
             {% if logged_in %}
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item active dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        <a class="nav-link dropdown-toggle p-0" href="#" id="userDropdown" role="button"
                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                             {{ user_name }}
                             <img class="avatar-sm" src="{{ user_avatar_src }}">

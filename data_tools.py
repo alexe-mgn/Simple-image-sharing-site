@@ -163,6 +163,7 @@ class UsersModel(ResourceModel):
             password VARCHAR(128),
             name VARCHAR(50) DEFAULT NULL,
             avatar_id INTEGER DEFAULT 0,
+            info VARCHAR(2048) DEFAULT 'Нет информации' NOT NULL,
             time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
             )
             ''')

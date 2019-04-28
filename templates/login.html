@@ -1,7 +1,7 @@
 {% extends "loading.html" %}
 
 {% block body %}
-    <a class="btn btn-outline-dark" href="{{ request.headers.get('referer', 'index') }}"
+    <a class="btn btn-outline-dark" href="{{ back_link }}"
        style="border-radius: 10%">back</a>
     <div align="middle">
         <form method="post" novalidate>

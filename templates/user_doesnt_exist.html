@@ -1,0 +1,17 @@
+{% extends "error.html" %}
+
+{% block message %}
+    <h2 align="middle">Сессия ссылается на несуществующего пользователя</h2>
+{% endblock %}
+
+{% block buttons %}
+    <form action="index">
+        <button type="submit">На главную</button>
+    </form>
+    <form action="{{ back_link }}">
+        <button type="submit">Назад</button>
+    </form>
+    <form action="logout">
+        <button type="submit">Выйти из аккаунта</button>
+    </form>
+{% endblock %}

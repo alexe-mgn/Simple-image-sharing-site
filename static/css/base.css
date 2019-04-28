@@ -1,3 +1,49 @@
+.background {
+    background-image: url(/image/background.jpg);
+}
+
+
+.platform {
+    border-radius: 8px;
+    background-color: white;
+    padding: .5rem;
+}
+
+
+.status-badge {
+    text-align: center;
+    line-height: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+
+    display: inline-block;
+    margin: 4px;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.status-badge-error {
+    width: 1.15rem;
+    height: 1.15rem;
+
+    border-radius: 50%;
+    background-color: indianred;
+    color: black;
+}
+
+
+.show-child-icons:hover .parent-hover {
+    visibility: visible;
+}
+
+.parent-hover {
+    visibility: hidden;
+}
+
 .avatar-sm {
     border-radius: 50%;
     border: black 1px;
@@ -10,30 +56,4 @@
     border: black 2px;
     width: 15rem;
     height: 15rem;
-}
-
-.platform {
-    border-radius: 8px;
-    background-color: white;
-    padding: .5rem
-}
-
-
-.error-badge {
-    width: 1.15rem;
-    height: 1.15rem;
-    border-radius: 50%;
-
-    background-color: indianred;
-    color: black;
-
-    text-align: center;
-    line-height: 1rem;
-    font-size: 1.2rem;
-    font-weight: bold;
-
-    display: inline-block;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
 }

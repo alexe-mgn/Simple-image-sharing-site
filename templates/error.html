@@ -1,0 +1,22 @@
+<h1 align="middle">Ошибка {{ code|default(404)|string }}</h1>
+
+{% block message %}
+    <h2 align="middle">{{ message|default('') }}</h2>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block buttons %}
+    <form action="index">
+        <button type="submit">На главную</button>
+    </form>
+    <form action="{{ back_link }}">
+        <button type="submit">Назад</button>
+    </form>
+    {% if logged_in %}
+        <form action="logout">
+            <button type="submit">Выйти из аккаунта</button>
+        </form>
+    {% endif %}
+{% endblock %}
