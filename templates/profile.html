@@ -25,7 +25,7 @@
             <div class="platform py-1 my-2">
                 <div class="d-flex flex-nowrap show-child-icons">
                     <h1 class="" text-update="/update_name"
-                        add-text-update-function id="name_label" status-badge="#name_sb"
+                        id="name_label" status-badge="#name_sb"
                     >{{ user.get('name', "<unknown>") }}</h1>
                     {% if own_profile %}
                         <i class="far fa-edit mb-auto m-1 parent-hover"
@@ -36,8 +36,8 @@
             </div>
             <div class="platform py-1 my-2" style="max-height: 15rem">
                 <div class="d-flex flex-nowrap show-child-icons" style="max-height: inherit">
-                <pre text-update="/update_info"
-                     add-text-update-function id="optional_info_label"
+                <pre text-update="/update_info" class="m-0"
+                     id="optional_info_label"
                      status-badge="#oil_badge" style="font-size: 100%"
                 >{{ user.get('info', 'Нет информации') }}</pre>
                     {% if own_profile %}

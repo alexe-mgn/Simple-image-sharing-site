@@ -13,6 +13,8 @@ def image(ref='0'):
     if not ref.isdigit():
         if ref == 'not_found':
             f_name = 'not_found.jpg'
+        elif ref == 'alt':
+            f_name = 'image_not_found.png'
         else:
             f_name = ref
     else:
@@ -28,6 +30,7 @@ def image(ref='0'):
 
 
 @api_app.route('/upload_avatar', methods=['POST'])
+@login_required(api=True)
 def upload_avatar():
     data = request.files.get('avatar_image', None)
     resp = {'success': False, 'id': None, 'error': ''}
@@ -50,6 +53,7 @@ def upload_avatar():
 
 
 @api_app.route('/update_name', methods=['POST'])
+@login_required(api=True)
 def update_name():
     data = request.get_data(as_text=True)
     resp = {'success': False, 'error': '', 'text': ''}
@@ -65,6 +69,7 @@ def update_name():
 
 
 @api_app.route('/update_info', methods=['POST'])
+@login_required(api=True)
 def update_info():
     data = request.get_data(as_text=True)
     resp = {'success': False, 'error': '', 'text': ''}
@@ -76,4 +81,47 @@ def update_info():
             resp['text'] = data
         else:
             resp['error'] = 'Доступ ограничен'
+    return jsonify(resp)
+
+
+@api_app.route('/post_rating/<int:pid>', methods=['GET'])
+@login_required(api=True)
+def get_post_rating(pid):
+    resp = {'success': False, 'error': '', 'value': None}
+    cuid = session.get('uid', None)
+    if cuid is not None:
+        res = lm.get_rating(pid, cuid)
+        resp['success'] = True
+        resp['value'] = res
+    else:
+        resp['error'] = 'Доступ ограничен'
+    return jsonify(resp)
+
+
+# Хорошее место для накрутки оценок
+@api_app.route('/post_rating/<int:pid>/<int:value>', methods=['POST'])
+@login_required(api=True)
+def rate_post(pid, value):
+    resp = {'success': False, 'error': '', 'value': None}
+    cuid = session.get('uid', None)
+    if cuid is not None:
+        if pm.exists(pid):
+            lm.rate(pid, cuid, value)
+            resp['success'] = True
+            resp['value'] = value
+        else:
+            resp['error'] = 'Публикация не существует'
+    else:
+        resp['error'] = 'Доступ ограничен'
+    return jsonify(resp)
+
+
+@api_app.route('/average_rating/<int:pid>', methods=['GET'])
+def average_rating(pid):
+    resp = {'success': False, 'error': '', 'value': None}
+    if pm.exists(pid):
+        resp['success'] = True
+        resp['value'] = lm.average_rating(pid)
+    else:
+        resp['error'] = 'Публикация не существует'
     return jsonify(resp)

@@ -113,6 +113,7 @@ class ResourceModel:
                 (*[e[1] for e in items],)
             )
         self.connection.commit()
+        return self.last_row()['id']
 
     def get_all(self):
         c = self.connection.cursor()
@@ -274,8 +275,41 @@ class LikesModel(ResourceModel):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             post_id INTEGER,
             user_id INTEGER,
-            value INTEGER CHECK (1 <= value AND value <= 5),
+            value INTEGER CHECK (1 <= value AND value <= 6),
             time INTEGER DEFAULT (cast(strftime('%s', 'now') as INTEGER))
             )
             ''')
+        self.connection.commit()
+
+    def average_rating(self, pid):
+        c = self.connection.cursor()
+        c.execute('SELECT avg(value) FROM likes WHERE (post_id=?)', (pid,))
+        r = c.fetchone()
+        c.close()
+        return r if r is not None else 0
+
+    def get_rating(self, pid, uid):
+        c = self.connection.cursor()
+        c.execute('SELECT value FROM likes WHERE (post_id=?, user_id=?)', (pid, uid))
+        r = c.fetchone()
+        c.close()
+        return r if r is not None else 0
+
+    def rate(self, pid, uid, value):
+        if value <= 0:
+            self.connection.execute('DELETE FROM likes WHERE (post_id=?, user_id=?)', (pid, uid))
+        else:
+            if value > 6:
+                value = 6
+            self.connection.execute(
+                '''
+                INSERT OR IGNORE INTO likes (id, post_id, user_id, value)
+                    VALUES (
+                    (SELECT id FROM likes WHERE (post_id=:pid, user_id=:uid)),
+                    :pid,
+                    :uid,
+                    :val
+                    );
+                UPDATE likes SET post_id=:pid, user_id=:uid, value=:val WHERE (post_id=:pid, user_id=:uid)
+                '''.format(self.table), {'pid': pid, 'uid': uid, 'val': value})
         self.connection.commit()

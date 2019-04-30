@@ -1,21 +1,59 @@
 ﻿{% extends "loading.html" %}
 
-{% block open %}
-    <div>
-        <div class="row">
+{% block head %}
+    <script type="text/javascript">
+        const post_id = {{ post.get('id', 0) }};
+    </script>
+    <script src={{ url_for('static', filename='js/post.js') }}></script>
+{% endblock %}
 
+{% block open %}
+    <body class="d-flex flex-nowrap justify-content-center">
+    <main role="main">
+        <div class="row justify-content-center">
+            <img src="/image/{{ post.get('image_id', 0) }}" class="post-image">
         </div>
-        <img src="/image/{{ post.get('image_id', 0) }}">
-        <div class="row">
-            <div class="col-sm-2">
-                <div style="width: 3rem; height: 2rem" class="d-flex justify-content-center align-content-center">
-                    <div class="heart" style="width: 1.2rem; height: 1.2rem"></div>
-                </div>
-                <h6>Likes: <span>1234</span></h6>
+        <div class="row justify-content-center my-2">
+            <div class="col-auto mr-auto mx-2">
+                <form class="row" id="rate_form" status-badge="#rate_sb">
+                    {#
+                    <button class="close mr-1" style="outline: 0" type="button" id="rate_button">
+                        <i class="far fa-times-circle align-self-center"></i>
+                    </button>
+                    #}
+                    <div class="mx-1 d-flex align-items-center justify-content-center" style="width: 24px">
+                        <div class="status-badge my-0 mx-0" id="rate_sb" onclick="$('#rate0').click()"
+                        loading-class="spinner-border spinner-border-sm text-primary"></div>
+                        <input style="display: none" type="radio" name='rate' id="rate0" value="0">
+                        <label for="rate0" class="my-0 mx-0 far fa-times-circle"
+                        style="font-size: 1.4rem"></label>
+                    </div>
+                    <div class="rating-box">
+                        <input type="radio" name='rate' id="rate6" value="6">
+                        <label for="rate6" class="rating-heart"></label>
+
+                        <input type="radio" name='rate' id="rate5" value="5">
+                        <label for="rate5" class="rating-heart"></label>
+
+                        <input type="radio" name='rate' id="rate4" value="4">
+                        <label for="rate4" class="rating-plus"></label>
+
+                        <input type="radio" name='rate' id="rate3" value="3">
+                        <label for="rate3" class="rating-plus"></label>
+
+                        <input type="radio" name='rate' id="rate2" value="2">
+                        <label for="rate2" class="rating-circle"></label>
+
+                        <input type="radio" name='rate' id="rate1" value="1">
+                        <label for="rate1" class="rating-circle"></label>
+                    </div>
+                </form>
+                <h6 class="row">Среднее: <span>1234</span></h6>
             </div>
-            <div class="col-sm-2">
+            <div class="col-auto mx-2">
                 <h6>Комментариев: <span>1234</span></h6>
             </div>
         </div>
-    </div>
+    </main>
+    </body>
 {% endblock %}

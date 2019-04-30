@@ -3,6 +3,14 @@
 }
 
 
+.post-image {
+    max-width: 30rem;
+    max-height: 20rem;
+    object-fit: contain;
+    object-position: center;
+}
+
+
 .platform {
     border-radius: 8px;
     background-color: white;
@@ -56,4 +64,120 @@
     border: black 2px;
     width: 15rem;
     height: 15rem;
+}
+
+
+.rating-box {
+    font-family: 'Verdana';
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+
+    border: 1px solid blue;
+
+    width: auto;
+    height: 2rem;
+    padding-right: .35rem
+}
+
+.rating-box input {
+    display: none;
+}
+
+.rating-box label {
+    float: left;
+    display: inline-block;
+    background: #ccc;
+    transition: all .3s;
+
+    position: relative;
+    width: 20px;
+    height: 5px;
+    margin: 4px;
+
+}
+
+
+/* rating circle */
+
+label.rating-circle {
+    width: 10px;
+    height: 10px;
+    border-radius: 100%;
+    margin: 0 10px;
+}
+
+label.rating-circle:before {
+    display: none;
+}
+
+label:hover ~ label.rating-circle,
+label.rating-circle:hover {
+    box-shadow: 0 0 0 2px gold,
+    inset 0 0 0 5px #333;
+}
+
+input:checked ~ label.rating-circle {
+    background: gold;
+    box-shadow: 0 0 0 2px gold;
+}
+
+
+/* rating plus */
+
+label.rating-plus:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: inherit;
+    top: 0;
+    left: 0;
+    transition: all 0.3s;
+}
+
+input:checked ~ label.rating-plus:before {
+    transform: rotate(90deg);
+}
+
+input:checked ~ label.rating-plus,
+label:hover ~ label.rating-plus,
+label.rating-plus:hover {
+    background: seagreen;
+}
+
+
+/* rating heart */
+
+label.rating-heart {
+    width: 8px;
+    height: 8px;
+    margin: 0 10px;
+}
+
+label.rating-heart:hover,
+label:hover ~ label.rating-heart {
+    background: crimson;
+    border-radius: 100%
+}
+
+input:checked ~ label.rating-heart {
+    border-radius: 100%;
+    background: crimson;
+    box-shadow: 6px 0 crimson, 3px 1px 0 6px #222, 3px 1px 0 8px crimson;
+}
+
+input:checked ~ label.rating-heart:after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background: crimson;
+    transform: rotate(-45deg);
+    border-bottom-left-radius: 15%;
+    top: 35%;
+    left: 3px;
 }

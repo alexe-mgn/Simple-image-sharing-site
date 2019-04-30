@@ -1,0 +1,37 @@
+{% extends "loading.html" %}
+
+{% block head %}
+    <script src="{{ url_for('static', filename='js/create_post.js') }}"></script>
+{% endblock %}
+
+{% block open %}
+    <body>
+    <a class="btn btn-outline-dark position-absolute" href="{{ back_link }}"
+       style="border-radius: 10%">back</a>
+    <main role="main" class="d-flex flex-nowrap justify-content-center p-4">
+        <form enctype="multipart/form-data" novalidate method="post">
+            <div class="my-3 row">
+                <div class="col pr-0">
+                    <div class="my-2">
+                        <img src="/image/alt" alt="Image" id="image"
+                             class="mx-auto d-block post-image">
+                    </div>
+                    <div class="my-2">
+                        <input type="file" name="image" id="image_input" class="form-control-file w-auto mx-auto">
+                    </div>
+                </div>
+                <div class="col d-flex flex-column">
+                    <label for="text" class="mt-2">Комментарий</label>
+                    <textarea id="text" class="flex-fill mb-3 h-auto overflow-auto text-nowrap" name="text"></textarea>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <button type="submit" class="btn btn-outline-success">
+                    <span class="status-badge m-0" loading-class="text-primary spinner-border spinner-border-sm"></span>
+                    Опубликовать
+                </button>
+            </div>
+        </form>
+    </main>
+    </body>
+{% endblock %}

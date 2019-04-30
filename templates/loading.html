@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
+    <title>{{ title|default('') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <script src="{{ url_for('static', filename='lib/js/jquery-3.4.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='lib/js/bootstrap.bundle.min.js') }}"></script>

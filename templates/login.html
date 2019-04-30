@@ -1,9 +1,9 @@
 {% extends "loading.html" %}
 
 {% block body %}
-    <a class="btn btn-outline-dark" href="{{ back_link }}"
+    <a class="btn btn-outline-dark position-absolute" href="{{ back_link }}"
        style="border-radius: 10%">back</a>
-    <div align="middle">
+    <div align="middle" class="p-4">
         <form method="post" novalidate>
             <p>{{ form.hidden_tag() }}</p>
             {% for i in form %}

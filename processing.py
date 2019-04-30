@@ -40,19 +40,26 @@ def get_session_user():
     return {}
 
 
-def login_required(f):
-    @wraps(f)
-    def login_required_wrapper(*args, **kwargs):
-        if not logged_in():
-            ref = request.headers.get('referer', 'index')
-            if ref.endswith('login') or ref.endswith('register') or ref.endswith('logout'):
-                return redirect('index')
+def login_required(api=False):
+    def login_required_dec(f):
+        @wraps(f)
+        def login_required_wrapper(*args, **kwargs):
+            if not logged_in():
+                ref = request.headers.get('referer', 'index')
+                if ref.endswith('login') or ref.endswith('register') or ref.endswith('logout'):
+                    return redirect('index')
+                else:
+                    session['back'] = 'index'
+                    session['next'] = request.url
+                    return redirect('login')
+            elif um.exists(session.get('uid', None)):
+                return f(*args, **kwargs)
             else:
-                session['back'] = 'index'
-                session['next'] = request.url
-                return redirect('login')
-        elif um.exists(session.get('uid', None)):
-            return f(*args, **kwargs)
-        else:
-            abort(410)
-    return login_required_wrapper
+                if not api:
+                    abort(410)
+                else:
+                    return {'success': False, 'error': 'Доступ ограничен'}
+
+        return login_required_wrapper
+
+    return login_required_dec

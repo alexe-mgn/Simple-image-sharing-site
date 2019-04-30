@@ -17,9 +17,9 @@ $(function () {
                         badge_set_error(badge, data.error)
                     }
                 })
-                .fail(function (req, msg) {
-                    badge_set_error(badge, msg)
-                });
+                .fail(function (xhr) {
+                    badge_set_error(badge, xhr.status.toString().concat(' ', xhr.statusText));
+                })
         }
     });
 });
@@ -35,7 +35,6 @@ function text_update_input(eid) {
                 $.ajax(api_link,
                     {method: 'POST', data: text})
                     .done(function (data) {
-                        console.log(data.success === true);
                         if (data.success === true) {
                             $(dom).text(text);
                             badge_unset(badge)
@@ -43,11 +42,8 @@ function text_update_input(eid) {
                             badge_set_error(badge, data.error || 'Ответ не был получен')
                         }
                     })
-                    .fail(function (req, msg) {
-                        badge_set_error(msg)
-                    })
-                    .always(function (data) {
-                        console.log(data)
+                    .fail(function (xhr) {
+                        badge_set_error(badge, xhr.status.toString().concat(' ', xhr.statusText));
                     })
             }
         })

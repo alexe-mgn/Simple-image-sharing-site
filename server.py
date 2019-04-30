@@ -1,12 +1,14 @@
 from processing import *
 
 from flask import Flask, redirect, request, render_template, Markup, session, abort, jsonify
+from werkzeug.utils import secure_filename
 
 from forms import RegisterForm, LoginForm
 from API import api_app
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = r'=CqWM9G&BpA&MuKTR5Qv5=8qV^2xExC9%yM7@=fA+V5nAstAf3tAR$#&+v^a2hvY'
+app.config['JSON_AS_ASCII'] = False
 app.register_blueprint(api_app)
 
 
@@ -27,12 +29,12 @@ def context_processor():
 
 @app.errorhandler(404)
 def error_404(*args):
-    return render_template('not_found.html', code=404)
+    return render_template('not_found.html', code=404), 404
 
 
 @app.errorhandler(410)
 def error_410(*args):
-    return render_template('user_doesnt_exist.html', code=404)
+    return render_template('user_doesnt_exist.html', code=404), 410
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -87,13 +89,13 @@ def index():
 
 
 @app.route('/news')
-@login_required
+@login_required()
 def news():
     return render_template('news.html')
 
 
 @app.route('/profile')
-@login_required
+@login_required()
 def own_profile():
     user = get_session_user()
     return render_template('profile.html', user=dict(user), title='Профиль')
@@ -111,16 +113,38 @@ def profile(uid):
 @app.route('/post/<int:pid>')
 def post_page(pid):
     post = pm.get(pid)
-    if post or True:
-        return render_template('post.html', post=dict(post if post else {}))
+    if post:
+        return render_template('post.html', post=dict(post))
     else:
         abort(404)
 
 
-@app.route('/create_post')
-@login_required
+@app.route('/create_post', methods=['GET', 'POST'])
+@login_required()
 def create_post():
-    return render_template('create_post.html')
+    if request.method == 'GET':
+        return render_template('create_post.html')
+    elif request.method == 'POST':
+        resp = {'success': False, 'error': '', 'id': None}
+        cuid = session.get('uid', None)
+        if cuid is not None:
+            img = request.files.get('image', None)
+            text = request.form.get('text', None)
+            a = request
+            b = request.files
+            c = request.form
+            if img is not None and text is not None:
+                mid = im.upload_secure(img.stream.read(), secure_filename(img.filename))
+                if mid is not None:
+                    resp['id'] = pm.add(user_id=cuid, image_id=mid, text=text)
+                    resp['success'] = True
+                else:
+                    resp['error'] = 'Ошибка сохранения изображения'
+            else:
+                resp['error'] = 'Недопустимые данные формы'
+        else:
+            resp['error'] = 'Доступ ограничен'
+        return jsonify(resp)
 
 
 if __name__ == '__main__':
