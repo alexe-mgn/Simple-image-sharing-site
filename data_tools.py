@@ -281,35 +281,48 @@ class LikesModel(ResourceModel):
             ''')
         self.connection.commit()
 
-    def average_rating(self, pid):
+    def get_rating(self, pid):
         c = self.connection.cursor()
         c.execute('SELECT avg(value) FROM likes WHERE (post_id=?)', (pid,))
-        r = c.fetchone()
+        r = c.fetchone()[0]
         c.close()
         return r if r is not None else 0
 
-    def get_rating(self, pid, uid):
+    def get_user_rating(self, pid, uid):
         c = self.connection.cursor()
-        c.execute('SELECT value FROM likes WHERE (post_id=?, user_id=?)', (pid, uid))
+        c.execute('SELECT value FROM likes WHERE (post_id=? AND user_id=?)', (pid, uid))
         r = c.fetchone()
         c.close()
-        return r if r is not None else 0
+        return r[0] if r is not None else 0
+
+    def user_rated(self, pid, uid):
+        c = self.connection.cursor()
+        c.execute('SELECT * FROM likes WHERE (post_id=? AND user_id=?)', (pid, uid))
+        r = c.fetchone()
+        c.close()
+        return r is not None
 
     def rate(self, pid, uid, value):
         if value <= 0:
-            self.connection.execute('DELETE FROM likes WHERE (post_id=?, user_id=?)', (pid, uid))
+            self.connection.execute('DELETE FROM likes WHERE (post_id=? AND user_id=?)', (pid, uid))
         else:
             if value > 6:
                 value = 6
+            args = {'pid': pid, 'uid': uid, 'val': value}
             self.connection.execute(
                 '''
                 INSERT OR IGNORE INTO likes (id, post_id, user_id, value)
                     VALUES (
-                    (SELECT id FROM likes WHERE (post_id=:pid, user_id=:uid)),
+                    (SELECT id FROM likes WHERE (post_id=:pid AND user_id=:uid)),
                     :pid,
                     :uid,
-                    :val
-                    );
-                UPDATE likes SET post_id=:pid, user_id=:uid, value=:val WHERE (post_id=:pid, user_id=:uid)
-                '''.format(self.table), {'pid': pid, 'uid': uid, 'val': value})
+                    1
+                    )
+                ''', args)
+            self.connection.execute(
+                '''
+                UPDATE likes
+                 SET post_id=:pid, user_id=:uid, value=:val, time=(cast(strftime('%s', 'now') as INTEGER))
+                  WHERE (post_id=:pid AND user_id=:uid AND NOT value=:val)
+                ''', args)
         self.connection.commit()

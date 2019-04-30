@@ -8,13 +8,17 @@ function upload_rating(val) {
     badge_set_loading(badge);
 
     if (0 <= val && val <= 6) {
-        $.ajax('/post_rating/'.concat(post_id.toString(), '/', val.toString()), {method: 'POST', data: ''})
+        $.ajax('/api/post/'.concat(post_id.toString()), {
+            method: 'PUT',
+            data: JSON.stringify({user_rating: val}),
+            contentType: 'application/json'
+        })
             .done(function (data) {
                 if (data.success === true) {
-                    $("input[name='rate']:checked").prop('checked', false);
-                    $(`input[name='rate'][value=${val}]`).prop('checked', true);
+                    // show_rating(data.value);
                     badge_unset(badge);
-                    b_obj.show()
+                    b_obj.show();
+                    update_stats()
                 } else {
                     badge_set_error(badge, data.error || 'Ответ не был получен')
                 }
@@ -27,9 +31,33 @@ function upload_rating(val) {
     }
 }
 
+
+function show_user_rating(val) {
+    $("input[name='rate']:checked").prop('checked', false);
+    $(`input[name='rate'][value=${val}]`).prop('checked', true);
+}
+
+
+function update_stats() {
+    $.ajax('/api/post/'.concat(post_id.toString()),
+        {
+            method: 'GET'
+        })
+        .done(function (data) {
+            if (data.success) {
+                $('#average_rating').text(data.data.rating);
+                $('#comments_number').text(data.data.comments_number);
+                show_user_rating(data.data.user_rating)
+            }
+        });
+}
+
+
 $(function () {
     $('input[name="rate"]').on('click', function (event) {
         event.preventDefault();
-        upload_rating(parseInt($(this).val()))
+        let new_val = parseInt($(this).val());
+        upload_rating(new_val)
     });
+    update_stats();
 });

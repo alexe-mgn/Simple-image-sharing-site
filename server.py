@@ -9,7 +9,8 @@ from API import api_app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = r'=CqWM9G&BpA&MuKTR5Qv5=8qV^2xExC9%yM7@=fA+V5nAstAf3tAR$#&+v^a2hvY'
 app.config['JSON_AS_ASCII'] = False
-app.register_blueprint(api_app)
+app.config['RESTFUL_JSON'] = {'ensure_ascii': False}
+app.register_blueprint(api_app, url_prefix='/api')
 
 
 @app.context_processor
@@ -23,7 +24,7 @@ def context_processor():
         'user_id': user.get('id', None),
         'user_name': user.get('name', None),
         'user_login': user.get('login', None),
-        'user_avatar_src': '/image/' + str(user.get('avatar_id', None))
+        'user_avatar_src': '/api/image/' + str(user.get('avatar_id', None))
     }
 
 
@@ -97,15 +98,15 @@ def news():
 @app.route('/profile')
 @login_required()
 def own_profile():
-    user = get_session_user()
-    return render_template('profile.html', user=dict(user), title='Профиль')
+    return redirect('/profile/{}'.format(get_cuid()))
 
 
 @app.route('/profile/<int:uid>')
 def profile(uid):
     user = um.get(uid)
     if user:
-        return render_template('profile.html', user=dict(user), title=user['name'])
+        posts = pm.find(user_id=uid)
+        return render_template('profile.html', user=dict(user), posts=[dict(e) for e in posts], title=user['name'])
     else:
         abort(404)
 
@@ -114,7 +115,8 @@ def profile(uid):
 def post_page(pid):
     post = pm.get(pid)
     if post:
-        return render_template('post.html', post=dict(post))
+        user = um.get(post['user_id'])
+        return render_template('post.html', post=dict(post), user=dict(user))
     else:
         abort(404)
 

@@ -1,13 +1,61 @@
 .background {
-    background-image: url(/image/background.jpg);
+    background-image: url(/api/image/background.jpg);
+}
+
+#reserved_frame {
+    width: 60rem;
+    height: 40rem;
+    margin: auto;
+    display: block;
+    border: none;
+    /*zoom: 0.5;*/
+    /*-ms-transform: scale(0.5);*/
+    /*-moz-transform: scale(0.5);*/
+    /*-o-transform: scale(0.5);*/
+    /*-webkit-transform: scale(0.5);*/
+    /*transform: scale(0.5);*/
+
+    /*-ms-transform-origin: 0 0;*/
+    /*-moz-transform-origin: 0 0;*/
+    /*-o-transform-origin: 0 0;*/
+    /*-webkit-transform-origin: 0 0;*/
+    /*transform-origin: 0 0;*/
+}
+
+.profile-link {
+    color: inherit;
+}
+
+.profile-link:hover {
+    text-decoration: none;
+    color: deepskyblue;
+}
+
+.post-image {
+    max-width: 40rem;
+    max-height: 25rem;
+    object-fit: contain;
+    object-position: center;
+}
+
+.post-image-sm {
+    max-width: 20rem;
+    max-height: 12rem;
+    object-fit: contain;
+    object-position: center;
 }
 
 
-.post-image {
-    max-width: 30rem;
+.post-text {
     max-height: 20rem;
-    object-fit: contain;
-    object-position: center;
+    max-width: 20rem;
+    white-space: pre-wrap;
+    overflow: auto;
+}
+
+
+.tooltip-text {
+    white-space: pre-wrap;
 }
 
 

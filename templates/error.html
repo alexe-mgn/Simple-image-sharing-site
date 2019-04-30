@@ -8,14 +8,14 @@
 {% endblock %}
 
 {% block buttons %}
-    <form action="index">
+    <form action="/index">
         <button type="submit">На главную</button>
     </form>
     <form action="{{ back_link }}">
         <button type="submit">Назад</button>
     </form>
     {% if logged_in %}
-        <form action="logout">
+        <form action="/logout">
             <button type="submit">Выйти из аккаунта</button>
         </form>
     {% endif %}

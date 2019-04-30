@@ -40,6 +40,14 @@ def get_session_user():
     return {}
 
 
+def get_cuid():
+    return session.get('uid', None)
+
+
+def is_admin(uid):
+    return False
+
+
 def login_required(api=False):
     def login_required_dec(f):
         @wraps(f)

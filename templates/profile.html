@@ -9,7 +9,7 @@
 {% block content %}
     <div class="row">
         <div class="col-lg-3 m-2 text-center">
-            <img src="{{ '/image/' + user.get('avatar_id', 0)|string }}"
+            <img src="{{ '/api/image/' + user.get('avatar_id', 0)|string }}"
                  class="avatar-lg" alt="..." id="avatar">
             {% if own_profile %}
                 <br>
@@ -24,7 +24,7 @@
         <div class="col-lg-7 m-2">
             <div class="platform py-1 my-2">
                 <div class="d-flex flex-nowrap show-child-icons">
-                    <h1 class="" text-update="/update_name"
+                    <h1 class="" text-update-url="/api/user/{{ user.get('id', None) }}" text-update-value="name"
                         id="name_label" status-badge="#name_sb"
                     >{{ user.get('name', "<unknown>") }}</h1>
                     {% if own_profile %}
@@ -35,10 +35,10 @@
                 </div>
             </div>
             <div class="platform py-1 my-2" style="max-height: 15rem">
-                <div class="d-flex flex-nowrap show-child-icons" style="max-height: inherit">
-                <pre text-update="/update_info" class="m-0"
-                     id="optional_info_label"
-                     status-badge="#oil_badge" style="font-size: 100%"
+                <div class="d-flex flex-nowrap show-child-icons">
+                <pre text-update-url="/api/user/{{ user.get('id', None) }}" class="m-0"
+                     id="optional_info_label" text-update-value="info"
+                     status-badge="#oil_badge" style="font-size: 100%; max-height: 14.5rem"
                 >{{ user.get('info', 'Нет информации') }}</pre>
                     {% if own_profile %}
                         <i class="far fa-edit mb-auto m-1 parent-hover"
@@ -48,6 +48,18 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="row flex-wrap">
+        {% for _ in range(10) %}
+            {% for i in posts %}
+                <div class="col-md-3 my-3">
+                    <img class="post-image-sm" alt="Image"
+                         src="/api/image/{{ i['image_id'] }}"
+                         onclick="load_reserved('/post/{{ i['id'] }}')">
+                </div>
+            {% endfor %}
+        {% endfor %}
     </div>
 
     {% if own_profile %}
@@ -60,10 +72,10 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body d-flex">
                         <input type="file" class="form-control-file" id="avatar_input"
                                status-badge="#err" style="width: auto">
-                        <div class="status-badge" id="err"></div>
+                        <div class="status-badge my-auto" id="err"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-dark" data-dismiss="modal">Закрыть</button>
