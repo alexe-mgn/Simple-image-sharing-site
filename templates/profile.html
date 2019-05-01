@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% set own_profile = (user_id == user.get('id', None)) %} }}
+{% set own_profile = (user_id == user.get('id', None) or is_admin) %} }}
 
 {% block head %}
     <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
@@ -50,15 +50,21 @@
         </div>
     </div>
 
+    <div class="ml-auto">
+        <form class="row">
+            <h4 class="text-white col-auto">Сортировка</h4>
+            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=time&reverse=true">Время</a>
+            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=rating&reverse=true">Рейтинг</a>
+        </form>
+    </div>
+
     <div class="row flex-wrap">
-        {% for _ in range(10) %}
-            {% for i in posts %}
-                <div class="col-md-3 my-3">
-                    <img class="post-image-sm" alt="Image"
-                         src="/api/image/{{ i['image_id'] }}"
-                         onclick="load_reserved('/post/{{ i['id'] }}')">
-                </div>
-            {% endfor %}
+        {% for i in posts %}
+            <div class="col-md-3 my-3" post-id="{{ i['id'] }}">
+                <img class="post-image-sm post-link" alt="Image"
+                     src="/api/image/{{ i['image_id'] }}"
+                     onclick="load_post({{ i['id'] }})">
+            </div>
         {% endfor %}
     </div>
 

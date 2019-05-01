@@ -41,6 +41,7 @@ class ResourceModel:
         """
         :type db: Database
         """
+        self.db = db
         self.connection = db.get_connection()
 
     def create_table(self):
@@ -178,6 +179,7 @@ class UsersModel(ResourceModel):
                 WHERE id = new.id;
             END;
             ''')
+        self.connection.execute('CREATE TABLE IF NOT EXISTS admins (user_id INTEGER)')
         self.connection.commit()
 
     def login_exists(self, login):
@@ -186,6 +188,20 @@ class UsersModel(ResourceModel):
         r = bool(c.fetchone())
         c.close()
         return r
+
+    def is_admin(self, uid):
+        c = self.connection.cursor()
+        c.execute('SELECT * FROM admins WHERE user_id=?', (uid,))
+        r = c.fetchone()
+        c.close()
+        return bool(r)
+
+    def set_admin(self, uid):
+        self.connection.execute(
+            '''
+            INSERT INTO admins (user_id) SELECT id FROM users WHERE id=?
+            ''', (uid,))
+        self.connection.commit()
 
 
 class ImagesModel(ResourceModel):
@@ -214,6 +230,7 @@ class ImagesModel(ResourceModel):
         with open(fp, mode='wb') as out:
             out.write(bytes)
         self.add(filename=bn + str(n) + ext)
+        self.connection.commit()
         return self.last_row()['id']
 
     def delete(self, id):
@@ -242,6 +259,13 @@ class PublicationsModel(ResourceModel):
             )
             ''')
         self.connection.commit()
+
+    def delete(self, id):
+        data = self.get(id)
+        self.connection.execute('DELETE FROM likes WHERE post_id=?', (id,))
+        self.connection.execute('DELETE FROM comments WHERE post_id=?', (id,))
+        ImagesModel(self.db).delete(data['image_id'])
+        super().delete(id)
 
 
 class CommentsModel(ResourceModel):

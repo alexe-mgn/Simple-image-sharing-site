@@ -2,9 +2,19 @@
     background-image: url(/api/image/background.jpg);
 }
 
+#reserved_modal {
+
+}
+
+#reserved_dialog {
+    align-items: stretch;
+    max-width: 80vw;
+    max-height: 50vh
+}
+
 #reserved_frame {
-    width: 60rem;
-    height: 40rem;
+    width: 100%;
+    height: 100%;
     margin: auto;
     display: block;
     border: none;
@@ -45,12 +55,15 @@
     object-position: center;
 }
 
-
 .post-text {
     max-height: 20rem;
     max-width: 20rem;
     white-space: pre-wrap;
     overflow: auto;
+}
+
+.post-link {
+    cursor: pointer
 }
 
 
@@ -98,6 +111,13 @@
 
 .parent-hover {
     visibility: hidden;
+}
+
+.avatar-xsm {
+    border-radius: 50%;
+    border: black 1px;
+    width: 2.5rem;
+    height: 2.5rem;
 }
 
 .avatar-sm {

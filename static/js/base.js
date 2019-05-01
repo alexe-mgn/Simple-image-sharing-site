@@ -3,7 +3,7 @@ function set_input(dom, callback) {
     dom = obj[0];
 
     let input = document.createElement("textarea");
-    $.each(dom.attributes, function(n, atr) {
+    $.each(dom.attributes, function (n, atr) {
         input.setAttribute(atr.name, atr.value);
     });
     input.value = obj.text();
@@ -112,20 +112,38 @@ function badge_unset(dom) {
     $(dom).hide()
 }
 
-function resizeIFrameToFitContent(iFrame) {
-    let obj = $(iFrame);
-    // iFrame.style.width = iFrame.contentWindow.document.body.scrollWidth;
-    // iFrame.style.height = iFrame.contentWindow.document.body.scrollHeight;
-}
-
 var reserved_frame;
 var frame_url = '/api/image/alt';
 
 
-function load_reserved(url) {
+function load_post(pid) {
+    load_reserved('/post/'.concat(pid.toString()), function () {
+        $('#reserved_modal').modal('hide');
+        $(`[post-id=${pid.toString()}]`).remove()
+    })
+}
+
+function load_reserved(url, error_callback) {
     frame_url = url;
     reserved_frame.src = url;
-    $('#reserved_modal').modal('show')
+    $('#reserved_modal').modal('show');
+    $(reserved_frame).off('load.error');
+    if (error_callback) {
+        $(reserved_frame).on('load.error', function () {
+            let status = $(reserved_frame).contents().find("#page_status");
+            if (status && parseInt(status.val()) === 1) {
+                error_callback()
+            }
+        })
+    }
+}
+
+function reserved_page_fixer() {
+    let c_url = reserved_frame.contentWindow.location.pathname;
+    if (c_url !== frame_url) {
+        reserved_frame.src = frame_url;
+        $('#reserved_modal').modal('hide')
+    }
 }
 
 $(document).ready(function () {
@@ -134,13 +152,5 @@ $(document).ready(function () {
     $("[data-toggle='tooltip']").tooltip();
     badges_init();
 
-    resizeIFrameToFitContent(reserved_frame);
-
-    $(reserved_frame).on('load', function () {
-        let c_url = reserved_frame.contentWindow.location.pathname;
-        if (c_url !== frame_url) {
-            reserved_frame.src = frame_url;
-            $('#reserved_modal').modal('hide')
-        }
-    })
+    $(reserved_frame).on('load.page_fixer', reserved_page_fixer)
 });

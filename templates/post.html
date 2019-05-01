@@ -22,7 +22,7 @@
                         {% if not own_post and logged_in %}
                             <form class="row" id="rate_form" status-badge="#rate_sb">
                                 <div class="mx-1 d-flex align-items-center justify-content-center" style="width: 24px">
-                                    <div class="status-badge my-0 mx-0" id="rate_sb" onclick="$('#rate0').click()"
+                                    <div class="status-badge m-0" id="rate_sb" onclick="$('#rate0').click()"
                                          loading-class="spinner-border spinner-border-sm text-primary"></div>
                                     <input style="display: none" type="radio" name='rate' id="rate0" value="0">
                                     <label for="rate0" class="my-0 mx-0 far fa-times-circle"
@@ -51,9 +51,9 @@
                         {% endif %}
                         <h5 class="row d-block">Средняя оценка: <span id="average_rating">0</span></h5>
                     </div>
-                    <div class="col-auto mx-2 ml-auto">
-                        <h5 class="m-0">Комментариев: <span id="comments_number">0</span></h5>
-                    </div>
+                    {#                    <div class="col-auto mx-2 ml-auto">#}
+                    {#                        <h5 class="m-0">Комментариев: <span id="comments_number">0</span></h5>#}
+                    {#                    </div>#}
                 </div>
             </div>
             <div class="col">
@@ -71,13 +71,16 @@
                         <pre class="card-text post-text" id="post_text" status-badge="#control_sb"
                              text-update-url="/api/post/{{ post.get('id', None) }}" text-update-value="text"
                         >{{ post.get('text', '') }}</pre>
-                        {% if own_post %}
+                        {% if own_post or is_admin %}
                             <div class="d-flex justify-content-center">
                                 <button class="btn btn-sm btn-outline-danger mx-3"
-                                id="delete_button">Удалить</button>
+                                        id="delete_button" onclick="delete_post()">Удалить
+                                </button>
                                 <button class="btn btn-sm btn-outline-primary mx-3"
-                                id="edit_button" onclick="text_update_input('#post_text')">Редактировать</button>
-                                <div class="status-badge my-auto" id="control_sb"></div>
+                                        id="edit_button" onclick="text_update_input('#post_text')">Редактировать
+                                </button>
+                                <div class="status-badge my-auto" id="control_sb"
+                                     loading-class="spinner-border spinner-border-sm text-primary"></div>
                             </div>
                         {% endif %}
                     </div>

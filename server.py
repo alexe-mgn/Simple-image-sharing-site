@@ -21,6 +21,7 @@ def context_processor():
         'back_link': session.get('back', 'index'),
         'next_link': session.get('next', 'index'),
         'logged_in': bool(user),
+        'is_admin': is_admin(user.get('id', None)),
         'user_id': user.get('id', None),
         'user_name': user.get('name', None),
         'user_login': user.get('login', None),
@@ -90,9 +91,23 @@ def index():
 
 
 @app.route('/news')
-@login_required()
 def news():
-    return render_template('news.html')
+    key = request.args.get('sort', 'time')
+    reverse = request.args.get('reverse', 'true') == 'true'
+    posts = pm.get_all()
+    rp = []
+    int_k = key in ['time']
+    f = int if int_k else str
+    df = 0 if int_k else str
+    for i in posts:
+        i = dict(i)
+        user = um.get(i['user_id'])
+        i['avatar_id'] = user['avatar_id']
+        i['user_name'] = user['name']
+        i['rating'] = lm.get_rating(i['id'])
+        rp.append(i)
+    rp.sort(key=lambda e: f(e.get(key, df)), reverse=reverse)
+    return render_template('news.html', posts=rp)
 
 
 @app.route('/profile')
@@ -106,7 +121,23 @@ def profile(uid):
     user = um.get(uid)
     if user:
         posts = pm.find(user_id=uid)
-        return render_template('profile.html', user=dict(user), posts=[dict(e) for e in posts], title=user['name'])
+        key = request.args.get('sort', 'time')
+        reverse = request.args.get('reverse', 'true') == 'true'
+        rp = []
+        aid, name = user['avatar_id'], user['name']
+        int_k = key in ['time']
+        f = int if int_k else str
+        df = 0 if int_k else str
+        for i in posts:
+            i = dict(i)
+            i['avatar_id'] = aid
+            i['user_name'] = name
+            i['rating'] = lm.get_rating(i['id'])
+            rp.append(i)
+        rp.sort(key=lambda e: f(e.get(key, df)), reverse=reverse)
+        return render_template('profile.html', user=dict(user),
+                               posts=rp,
+                               title=user['name'])
     else:
         abort(404)
 

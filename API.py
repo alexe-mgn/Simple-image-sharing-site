@@ -102,6 +102,22 @@ class Post(Resource):
         else:
             return abort_json(404, 'Публикация не найдена')
 
+    def delete(self, pid):
+        if pm.exists(pid):
+            cuid = get_cuid()
+            if cuid is not None:
+                user_id = pm.get(pid)['user_id']
+                admin = is_admin(cuid)
+                if user_id == cuid or admin:
+                    pm.delete(pid)
+                    return {'success': True}
+                else:
+                    return abort_json(403, 'Недостаточно прав')
+            else:
+                return abort_json(403, 'Доступ ограничен')
+        else:
+            return abort_json(404, 'Публикация не найдена')
+
 
 @api_app.route('/upload_avatar', methods=['POST'])
 @login_required(api=True)

@@ -1,4 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <h1 class="mr-auto text-white">Публикации пользователей</h1>
+    <div class="ml-auto">
+        <form class="row">
+            <h4 class="text-white col-auto">Сортировка</h4>
+            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=time&reverse=true">Время</a>
+            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=rating&reverse=true">Рейтинг</a>
+            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=user_name">Имя пользователя</a>
+        </form>
+    </div>
+    <div class="row">
+        {% for i in posts %}
+            <div class="col-lg-4 my-3" post-id="{{ i['id'] }}">
+                <img class="post-image-sm post-link" src="/api/image/{{ i['image_id'] }}" align="Image"
+                     onclick="load_post({{ i['id'] }})">
+                <div class="d-flex">
+                    <img class="avatar-xsm m-1" src="/api/image/{{ i['avatar_id'] }}" alt="Avatar">
+                    <h3 class="mx-2 my-auto text-white">
+                        <a class="profile-link"
+                           href="/profile/{{ i['user_id'] }}"
+                        >{{ i['user_name'] }}</a></h3>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

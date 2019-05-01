@@ -45,7 +45,7 @@ def get_cuid():
 
 
 def is_admin(uid):
-    return False
+    return um.is_admin(uid)
 
 
 def login_required(api=False):

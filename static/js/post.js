@@ -32,6 +32,27 @@ function upload_rating(val) {
 }
 
 
+function delete_post() {
+    let badge = $('#control_sb')[0];
+    badge_set_loading(badge);
+
+    $.ajax('/api/post/'.concat(post_id.toString()), {
+        method: 'DELETE'
+    })
+        .done(function (data) {
+            if (data.success === true) {
+                badge_unset(badge);
+                window.history.back()
+            } else {
+                badge_set_error(badge, data.error || 'Ответ не был получен')
+            }
+        })
+        .fail(function (xhr) {
+            badge_set_error(badge, xhr.status.toString().concat(' - ', xhr.statusText));
+        });
+}
+
+
 function show_user_rating(val) {
     $("input[name='rate']:checked").prop('checked', false);
     $(`input[name='rate'][value=${val}]`).prop('checked', true);
