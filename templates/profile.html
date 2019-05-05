@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% set own_profile = (user_id == user.get('id', None) or is_admin) %} }}
+{% set own_profile = (user_id == user.get('id', None)) %} }}
 
 {% block head %}
     <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
@@ -11,7 +11,7 @@
         <div class="col-lg-3 m-2 text-center">
             <img src="{{ '/api/image/' + user.get('avatar_id', 0)|string }}"
                  class="avatar-lg" alt="..." id="avatar">
-            {% if own_profile %}
+            {% if own_profile or is_admin %}
                 <br>
                 <button class="btn-md btn-outline-primary my-2"
                         style="background-color: transparent; border-radius: 4px"
@@ -27,7 +27,7 @@
                     <h1 class="" text-update-url="/api/user/{{ user.get('id', None) }}" text-update-value="name"
                         id="name_label" status-badge="#name_sb"
                     >{{ user.get('name', "<unknown>") }}</h1>
-                    {% if own_profile %}
+                    {% if own_profile or is_admin %}
                         <i class="far fa-edit mb-auto m-1 parent-hover"
                            onclick="text_update_input('#name_label')"></i>
                         <div class="status-badge mb-auto ml-auto" id="name_sb"></div>
@@ -40,7 +40,7 @@
                      id="optional_info_label" text-update-value="info"
                      status-badge="#oil_badge" style="font-size: 100%; max-height: 14.5rem"
                 >{{ user.get('info', 'Нет информации') }}</pre>
-                    {% if own_profile %}
+                    {% if own_profile or is_admin %}
                         <i class="far fa-edit mb-auto m-1 parent-hover"
                            onclick="text_update_input('#optional_info_label')"></i>
                         <div class="status-badge mb-auto ml-auto" id="oil_badge"></div>
@@ -50,11 +50,19 @@
         </div>
     </div>
 
-    <div class="ml-auto">
-        <form class="row">
-            <h4 class="text-white col-auto">Сортировка</h4>
-            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=time&reverse=true">Время</a>
-            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=rating&reverse=true">Рейтинг</a>
+    <div>
+        <form class="row platform mr-auto" id="sort_form" style="max-width: 50%"
+              onsubmit="sort_form(this); return false">
+            <label for="sort_select" class="col-auto m-auto">Сортировка</label>
+            <select class="form-control col m-auto" name="sort" id="sort_select">
+                <option sort-value="sort=time&reverse=true" selected>Время</option>
+                <option sort-value="sort=rating&reverse=true">Рейтинг</option>
+            </select>
+            <input class="form-check-input col-auto position-relative my-auto mx-2"
+                   sort-value="{% if not own_profile %}user_rating=false{% else %}rating=False{% endif %}"
+                   name="rated" id="rate_filter" type="checkbox">
+            <label for="rate_filter" class="col-auto m-auto pl-0">Без оценки</label>
+            <button type="submit" class="btn btn-md btn-outline-primary col-auto m-auto">Принять</button>
         </form>
     </div>
 

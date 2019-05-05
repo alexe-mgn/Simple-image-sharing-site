@@ -70,6 +70,14 @@ function text_update_callback(text) {
     }
 }
 
+function sort_form(dom) {
+    let prm = window.location.pathname + '?';
+    $("input:checked, option:selected", dom).each(function () {
+        prm = prm + $(this).attr('sort-value') + '&'
+    });
+    window.location.replace(prm)
+}
+
 function badges_init() {
     $('.status-badge').each(function (n, dom) {
         let obj = $(dom);

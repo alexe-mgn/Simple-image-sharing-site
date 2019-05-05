@@ -71,3 +71,23 @@ def login_required(api=False):
         return login_required_wrapper
 
     return login_required_dec
+
+
+def sbool(v):
+    return bool(v) and v != 'false'
+
+
+def param_sort(posts):
+    args = dict(request.args)
+    key = args.pop('sort', 'time')
+    reverse = sbool(args.pop('reverse', 'true'))
+    consts = {k: sbool(v) for k, v in args.items()}
+    rp = []
+    int_k = key in ['time']
+    f = int if int_k else str
+    df = 0 if int_k else str
+    for i in posts:
+        if all(map(lambda e: bool(i.get(e[0], None)) == e[1], consts.items())):
+            rp.append(i)
+    rp.sort(key=lambda e: f(e.get(key, df)), reverse=reverse)
+    return rp

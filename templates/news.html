@@ -2,12 +2,19 @@
 
 {% block content %}
     <h1 class="mr-auto text-white">Публикации пользователей</h1>
-    <div class="ml-auto">
-        <form class="row">
-            <h4 class="text-white col-auto">Сортировка</h4>
-            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=time&reverse=true">Время</a>
-            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=rating&reverse=true">Рейтинг</a>
-            <a class="btn btn-outline-info btn-md col-auto mx-2" href="?sort=user_name">Имя пользователя</a>
+    <div>
+        <form class="row platform ml-auto" id="sort_form" style="max-width: 50%"
+              onsubmit="sort_form(this); return false">
+            <label for="sort_select" class="col-auto m-auto">Сортировка</label>
+            <select class="form-control col m-auto" name="sort" id="sort_select">
+                <option sort-value="sort=time&reverse=true" selected>Время</option>
+                <option sort-value="sort=rating&reverse=true">Рейтинг</option>
+                <option sort-value="sort=user_name">Имя пользователя</option>
+            </select>
+            <input class="form-check-input col-auto position-relative my-auto mx-2"
+                   sort-value="user_rating=false" name="rated" id="rate_filter" type="checkbox">
+            <label for="rate_filter" class="col-auto m-auto pl-0">Без оценки</label>
+            <button type="submit" class="btn btn-md btn-outline-primary col-auto m-auto">Принять</button>
         </form>
     </div>
     <div class="row">

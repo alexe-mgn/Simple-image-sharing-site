@@ -92,22 +92,17 @@ def index():
 
 @app.route('/news')
 def news():
-    key = request.args.get('sort', 'time')
-    reverse = request.args.get('reverse', 'true') == 'true'
     posts = pm.get_all()
-    rp = []
-    int_k = key in ['time']
-    f = int if int_k else str
-    df = 0 if int_k else str
-    for i in posts:
+    cu = get_session_user()
+    for n, i in enumerate(posts):
         i = dict(i)
         user = um.get(i['user_id'])
         i['avatar_id'] = user['avatar_id']
         i['user_name'] = user['name']
         i['rating'] = lm.get_rating(i['id'])
-        rp.append(i)
-    rp.sort(key=lambda e: f(e.get(key, df)), reverse=reverse)
-    return render_template('news.html', posts=rp)
+        i['user_rating'] = lm.get_user_rating(i['id'], cu.get('id', None))
+        posts[n] = i
+    return render_template('news.html', posts=param_sort(posts))
 
 
 @app.route('/profile')
@@ -121,22 +116,15 @@ def profile(uid):
     user = um.get(uid)
     if user:
         posts = pm.find(user_id=uid)
-        key = request.args.get('sort', 'time')
-        reverse = request.args.get('reverse', 'true') == 'true'
-        rp = []
         aid, name = user['avatar_id'], user['name']
-        int_k = key in ['time']
-        f = int if int_k else str
-        df = 0 if int_k else str
-        for i in posts:
+        for n, i in enumerate(posts):
             i = dict(i)
             i['avatar_id'] = aid
             i['user_name'] = name
             i['rating'] = lm.get_rating(i['id'])
-            rp.append(i)
-        rp.sort(key=lambda e: f(e.get(key, df)), reverse=reverse)
+            posts[n] = i
         return render_template('profile.html', user=dict(user),
-                               posts=rp,
+                               posts=param_sort(posts),
                                title=user['name'])
     else:
         abort(404)
@@ -163,9 +151,6 @@ def create_post():
         if cuid is not None:
             img = request.files.get('image', None)
             text = request.form.get('text', None)
-            a = request
-            b = request.files
-            c = request.form
             if img is not None and text is not None:
                 mid = im.upload_secure(img.stream.read(), secure_filename(img.filename))
                 if mid is not None:
