@@ -114,6 +114,7 @@ def own_profile():
 @app.route('/profile/<int:uid>')
 def profile(uid):
     user = um.get(uid)
+    cu = get_session_user()
     if user:
         posts = pm.find(user_id=uid)
         aid, name = user['avatar_id'], user['name']
@@ -122,6 +123,7 @@ def profile(uid):
             i['avatar_id'] = aid
             i['user_name'] = name
             i['rating'] = lm.get_rating(i['id'])
+            i['user_rating'] = lm.get_user_rating(i['id'], cu.get('id', None))
             posts[n] = i
         return render_template('profile.html', user=dict(user),
                                posts=param_sort(posts),

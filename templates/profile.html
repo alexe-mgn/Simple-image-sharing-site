@@ -59,7 +59,7 @@
                 <option sort-value="sort=rating&reverse=true">Рейтинг</option>
             </select>
             <input class="form-check-input col-auto position-relative my-auto mx-2"
-                   sort-value="{% if not own_profile %}user_rating=false{% else %}rating=False{% endif %}"
+                   sort-value="{% if not own_profile %}user_rating=false{% else %}rating=false{% endif %}"
                    name="rated" id="rate_filter" type="checkbox">
             <label for="rate_filter" class="col-auto m-auto pl-0">Без оценки</label>
             <button type="submit" class="btn btn-md btn-outline-primary col-auto m-auto">Принять</button>

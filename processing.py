@@ -74,7 +74,7 @@ def login_required(api=False):
 
 
 def sbool(v):
-    return bool(v) and v != 'false'
+    return bool(v) and v.lower() != 'false'
 
 
 def param_sort(posts):
@@ -85,7 +85,7 @@ def param_sort(posts):
     rp = []
     int_k = key in ['time']
     f = int if int_k else str
-    df = 0 if int_k else str
+    df = 0 if int_k else str()
     for i in posts:
         if all(map(lambda e: bool(i.get(e[0], None)) == e[1], consts.items())):
             rp.append(i)
