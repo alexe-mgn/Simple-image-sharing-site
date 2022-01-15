@@ -1,0 +1,4 @@
+flask==1.0.2
+wtforms==2.2.1
+flask_wtf==0.14.2
+flask_restful==0.3.7
