@@ -12,6 +12,12 @@ app.config['JSON_AS_ASCII'] = False
 app.config['RESTFUL_JSON'] = {'ensure_ascii': False}
 app.register_blueprint(api_app, url_prefix='/api')
 
+if im.connection.execute("SELECT COUNT(*) FROM {}".format(im.table)).fetchone()[0] == 0:
+    images_path = os.path.join("static", "img")
+    for (dr, ds, fs) in os.walk(images_path):
+        for f in fs:
+            im.add(filename=os.path.normpath(os.path.join(os.path.relpath(dr, images_path), f)), time=0)
+
 
 @app.context_processor
 def context_processor():

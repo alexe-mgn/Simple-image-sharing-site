@@ -229,7 +229,7 @@ class ImagesModel(ResourceModel):
         fp = fnp + str(n) + ext
         with open(fp, mode='wb') as out:
             out.write(bytes)
-        self.add(filename=bn + str(n) + ext)
+        self.add(filename=(bn + str(n) + ext).replace('\\', '/'))
         self.connection.commit()
         return self.last_row()['id']
 

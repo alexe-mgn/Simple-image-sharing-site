@@ -6,7 +6,7 @@ from functools import wraps
 DATABASE = 'data.db'
 SECRET_KEY = r'=CqWM9G&BpA&MuKTR5Qv5=8qV^2xExC9%yM7@=fA+V5nAstAf3tAR$#&+v^a2hvY'
 
-database = Database('data.db')
+database = Database(DATABASE)
 um = UsersModel(database)
 im = ImagesModel(database)
 pm = PublicationsModel(database)
